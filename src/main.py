@@ -4,25 +4,36 @@ import subprocess
 import click
 
 
+@click.group()
+def cli():
+    pass
+
+
 @click.command()
-def bump_major():
+def major():
     version = get_version()
-    version.bump_major()
+    version = version.bump_major()
     release(version=version)
 
 
 @click.command()
-def bump_minor():
+def minor():
     version = get_version()
-    version.bump_minor()
+    version = version.bump_minor()
     release(version=version)
 
 
 @click.command()
-def bump_patch():
+def patch():
     version = get_version()
-    version.bump_patch()
+    version = version.bump_patch()
+    v = version.bump_patch()
     release(version=version)
+
+
+cli.add_command(major)
+cli.add_command(minor)
+cli.add_command(patch)
 
 
 def get_version():
@@ -35,20 +46,22 @@ def get_version():
         .strip()
         .decode()
     )
-    return semver.VersionInfo.parse(f"{version_str[1:]}")
+    return semver.Version.parse(f"{version_str[1:]}")
 
 
 def release(version):
-    subprocess.check_output(
+    logging.info(f"releasing: {version}")
+    subprocess.run(
         [
-            "gh release create",
-            f"v{version.major}.{version.minor}.{version.patch} --generate-notes",
+            "gh",
+            "release",
+            "create",
+            f"v{version.major}.{version.minor}.{version.patch}",
+            "--generate-notes",
         ]
     )
 
 
 if __name__ == "__main__":
     logging.info("Starting...")
-    bump_major()
-    bump_minor()
-    bump_patch()
+    cli()

@@ -1,22 +1,54 @@
 import logging
 import semver
 import subprocess
+import click
 
-# TODO: add click and make it easy to bump versions
 
-def main():
-    # sets up logging
-    format = "[%(asctime)s][%(name)s][%(levelname)s]: %(message)s"
-    logging.basicConfig(format=format, level=logging.INFO)
-
-def run():
+@click.command()
+def bump_major():
     version = get_version()
-    logging.info(version)
+    version.bump_major()
+    release(version=version)
+
+
+@click.command()
+def bump_minor():
+    version = get_version()
+    version.bump_minor()
+    release(version=version)
+
+
+@click.command()
+def bump_patch():
+    version = get_version()
+    version.bump_patch()
+    release(version=version)
 
 
 def get_version():
-    version_string = subprocess.check_output(["git", "describe", "--tags"]).strip().decode()
-    return semver.VersionInfo.parse(f"{version_string[1:]}")
+    # sets up logging
+    format = "[%(asctime)s][%(name)s][%(levelname)s]: %(message)s"
+    logging.getLogger().setLevel(logging.INFO)  # configure root logger
 
-if __name__ == '__main__':
-    main()
+    version_str = (
+        subprocess.check_output(["git", "describe", "--tags", "--abbrev"])
+        .strip()
+        .decode()
+    )
+    return semver.VersionInfo.parse(f"{version_str[1:]}")
+
+
+def release(version):
+    subprocess.check_output(
+        [
+            "gh release create",
+            f"v{version.major}.{version.minor}.{version.patch} --generate-notes",
+        ]
+    )
+
+
+if __name__ == "__main__":
+    logging.info("Starting...")
+    bump_major()
+    bump_minor()
+    bump_patch()

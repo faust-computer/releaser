@@ -1,11 +1,1 @@
-# python __pycacahe
-__pycacahe__
-src/__pycache__
-**/__pycacahe
-
-.env
-*.pyc
-*.pyo
-
-**/*.pyc
-**/*.pyo
+.DS_Store

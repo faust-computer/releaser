@@ -77,7 +77,8 @@ if [[ $confirm == [yY] || $confirm == [yY][eE][sS] ]]; then
   git push origin $new_tag_name
 
   # Create a new GitHub release with the provided new tag name
-  gh release create $new_tag_name --notes-file release_notes.md
+  release_title="Release $new_tag_name"
+  gh release create $new_tag_name --title $release_title --notes-file release_notes.md
 else
   echo "Release creation cancelled."
 fi
